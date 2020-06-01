@@ -1,0 +1,11 @@
+
+dc service db;
+
+dc nodeps;
+dc interactive;
+
+dc cmd mysqldump "-h db -u ${USER}";
+
+dc run "$@";
+return $?;
+

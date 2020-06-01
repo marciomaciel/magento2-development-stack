@@ -1,0 +1,14 @@
+
+# Collect images to update
+images=`. ${DEV_COMMANDPATH}/images`;
+
+dp() {
+    echo 'docker pull '$1;
+}
+
+# Get latest releases
+for image in ${images}; do
+    `dp $image`;
+done
+return 0;
+

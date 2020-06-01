@@ -1,0 +1,15 @@
+
+dc service db;
+
+dc nodeps;
+dc interactive;
+
+MYSQL_USER=$(grep MYSQL_USER ${PROJECT_PATH}/.env | cut -d '=' -f2)
+MYSQL_PASSWORD=$(grep MYSQL_PASSWORD ${PROJECT_PATH}/.env | cut -d '=' -f2)
+MYSQL_DB=$(grep MYSQL_DATABASE ${PROJECT_PATH}/.env | cut -d '=' -f2)
+
+dc cmd mysql "-h db -u ${MYSQL_USER} -p${MYSQL_PASSWORD} ${MYSQL_DB}";
+
+dc run "$@";
+return $?;
+

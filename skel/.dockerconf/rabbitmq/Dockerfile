@@ -1,0 +1,1 @@
+FROM magecore/magento2-development:rabbitmq3.7-management

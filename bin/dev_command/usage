@@ -1,0 +1,14 @@
+
+echo "Usage ${DEV_SELF} [COMMAND]"
+echo '';
+echo 'COMMAND:'
+for command in `ls ${DEV_COMMANDPATH}`; do
+    echo " - $command";
+done
+
+if [ ! -e ${TOOLS_PATH}/bin ]; then
+    return 1;
+fi
+
+return 1;
+

@@ -1,0 +1,4 @@
+
+${DEV_SELF} stop "$@";
+${DEV_SELF} start "$@";
+

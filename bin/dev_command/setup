@@ -1,0 +1,147 @@
+#!/bin/bash
+
+setup() {
+  cleanProjectName=$(basename $PROJECT_PATH)
+  cleanProjectName=${cleanProjectName//[^[:alnum:]]/}
+  cleanProjectName=${cleanProjectName,,}
+  mkdir -p  "$PROJECT_DOCKER_PATH"/web
+
+  projectName() {
+    echo ""
+    echo "###########################################################################################"
+    echo "Project Configuration:"
+    echo "###########################################################################################"
+    read -p "Project Name:
+  - Used to container name and magento URL. No spaces or special characters are accepted.
+  [ENTER to default: ${cleanProjectName}]: " projectName
+    if [ -z "${projectName}" ]; then
+      projectName=${cleanProjectName}
+    else
+      projectName=${projectName//[^[:alnum:]]/}
+      projectName=${projectName,,}
+    fi
+  }
+
+  mysqlSetup() {
+    local defaultMysqlRootPass=root
+    local defaultMysqlDatabase=$projectName
+    local defaultMysqlUser=magento2
+    local defaultMysqlPass=magento2
+    echo ""
+    echo "###########################################################################################"
+    echo "MySQL Configuration:"
+    echo "###########################################################################################"
+    read -p"MySQL root password [ENTER to default: ${defaultMysqlRootPass}]: " mysqlRootPass
+    if [ -z "${mysqlRootPass}" ]; then
+      mysqlRootPass=${defaultMysqlRootPass}
+    fi
+
+    read -p"MySQL user [ENTER to default: ${defaultMysqlUser}]: " mysqlUser
+    if [ -z "${mysqlUser}" ]; then
+      mysqlUser=${defaultMysqlUser}
+    fi
+
+    read -p"MySQL password [ENTER to default: ${defaultMysqlPass}]: " mysqlUserPass
+    if [ -z "${mysqlUserPass}" ]; then
+      mysqlUserPass=${defaultMysqlPass}
+    fi
+
+    read -p"MySQL database name [ENTER to default: ${defaultMysqlDatabase}]: " mysqlDatabase
+    if [ -z "${mysqlDatabase}" ]; then
+      mysqlDatabase=${defaultMysqlDatabase}
+    fi
+
+    echo "###########################################################################################"
+    echo ""
+  }
+
+  magentoSetup() {
+    local defaultMagentoAdminUrl=site_management
+    local defaultMagentoAdminUser=admin
+    local defaultMagentoAdminPass=s123123
+    local defaultMagentoAdminFirstname=Admin
+    local defaultMagentoAdminLastname=Admin
+    local defaultMagentoAdminEmail="admin@${projectName}.localhost"
+    echo ""
+    echo "###########################################################################################"
+    echo "Magento Configuration:"
+    echo "###########################################################################################"
+    read -p"Magento admin URL [ENTER to default: ${defaultMagentoAdminUrl}]: " magentoAdminUrl
+    if [ -z "${magentoAdminUrl}" ]; then
+      magentoAdminUrl=${defaultMagentoAdminUrl}
+    fi
+
+    read -p"Magento admin username [ENTER to default: ${defaultMagentoAdminUser}]: " magentoAdminUser
+    if [ -z "${magentoAdminUser}" ]; then
+      magentoAdminUser=${defaultMagentoAdminUser}
+    fi
+
+    read -p"Magento admin user password [ENTER to default: ${defaultMagentoAdminPass}]: " magentoAdminPass
+    if [ -z "${magentoAdminPass}" ]; then
+      magentoAdminPass=${defaultMagentoAdminPass}
+    fi
+
+    read -p"Magento admin user firstname [ENTER to default: ${defaultMagentoAdminFirstname}]: " magentoAdminFirstname
+    if [ -z "${magentoAdminFirstname}" ]; then
+      magentoAdminFirstname=${defaultMagentoAdminFirstname}
+    fi
+
+    read -p"Magento admin user lastname [ENTER to default: ${defaultMagentoAdminLastname}]: " magentoAdminLastname
+    if [ -z "${magentoAdminLastname}" ]; then
+      magentoAdminLastname=${defaultMagentoAdminLastname}
+    fi
+
+    read -p"Magento admin user email [ENTER to default: ${defaultMagentoAdminEmail}]: " magentoAdminEmail
+    if [ -z "${magentoAdminEmail}" ]; then
+      magentoAdminEmail=${defaultMagentoAdminEmail}
+    fi
+
+    echo "###########################################################################################"
+    echo ""
+
+  }
+  confirmConfig() {
+    echo "###########################################################################################"
+    echo ""
+    echo "PLEASE CONFIRM THE CONFIGURATION"
+    echo ""
+    echo "###########################################################################################"
+    echo "Project Name: ${projectName}"
+    echo "Project URL: http://${projectName}.localhost"
+    echo "MySQL root password: ${mysqlRootPass}"
+    echo "Mysql user: ${mysqlUser}"
+    echo "Mysql password: ${mysqlUserPass}"
+    echo "Mysql database name: ${mysqlDatabase}"
+
+    while true; do
+      read -p "Are you sure? [y/n] " yn
+      case $yn in
+      [yY][eE][sS] | [yY]*)
+        writeConfig
+        $DEV_SELF build
+        $DEV_SELF up
+        return 0
+        ;;
+      [Nn][oO] | [nN]*) return 0 ;;
+      *) ;;
+      esac
+    done
+
+  }
+  writeConfig() {
+    echo "COMPOSE_PROJECT_NAME=${projectName}" >$PROJECT_PATH/.env
+    echo "MYSQL_ROOT_PASSWORD=${mysqlRootPass}" >>$PROJECT_PATH/.env
+    echo "MYSQL_DATABASE=${mysqlDatabase}" >>$PROJECT_PATH/.env
+    echo "MYSQL_USER=${mysqlUser}" >>$PROJECT_PATH/.env
+    echo "MYSQL_PASSWORD=${mysqlUserPass}" >>$PROJECT_PATH/.env
+    echo "MAGENTO_HOSTNAME=${projectName}.localhost" >>$PROJECT_PATH/.env
+    docker volume create ${projectName}_db_volume;
+    mkdir -p $PROJECT_PATH/web
+    mkdir -p $PROJECT_PATH/.composer
+  }
+
+  projectName
+  mysqlSetup
+  confirmConfig
+}
+setup

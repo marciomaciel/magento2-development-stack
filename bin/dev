@@ -1,0 +1,122 @@
+#!/bin/bash
+
+init() {
+
+  DEV_SELF=$(which $0)
+  TOOLS_PATH=$(dirname $DEV_SELF)
+  DEV_COMMANDPATH=$TOOLS_PATH/dev_command
+
+  if [ ! -d "${PWD}/.dockerconf" ]; then
+    if [ -d "$(dirname ${PWD})/.dockerconf" ]; then
+      PROJECT_PATH=$(dirname ${PWD})
+    else
+      echo "Not in an project directory. Please check and try again"
+      exit 1
+    fi
+  else
+    PROJECT_PATH=${PWD}
+  fi
+  cd $PROJECT_PATH
+  PROJECT_WEBROOT=$PROJECT_PATH/web
+  PROJECT_DOCKER_PATH=$PROJECT_PATH/.dockerconf
+
+  DEV_YML="${PROJECT_DOCKER_PATH}/docker-compose.yml"
+  dc mode 'run --rm'
+
+  DEV_INTERACTIVE=false
+  if [ -t "0" ] && [ -t "1" ]; then
+    DEV_INTERACTIVE=true
+  fi
+}
+
+dc() {
+
+  run() {
+    cmd="docker-compose -f ${DEV_YML} ${DEV_MODE} ${DEV_DOCKEROPTS} ${DEV_SERVICE} ${DEV_CMD}"
+    ${cmd} "$@"
+    return $?
+  }
+  opt() {
+    DEV_DOCKEROPTS=${DEV_DOCKEROPTS}' '"$@"
+  }
+
+  interactive() {
+    [ ! ${DEV_INTERACTIVE} ] && opt '-T'
+  }
+
+  user() {
+    opt "-u $(id -u):$(id -g)"
+  }
+
+  nodeps() {
+    opt '--no-deps'
+  }
+
+  projectpath() {
+    [ -n "${DEV_PROJECTPATH}" ] &&
+      opt "-w /var/www/html"
+  }
+
+  service() {
+    if [ "$1" == "php" ]; then
+      DEV_SERVICE='php-fpm'
+    else
+      DEV_SERVICE="$@"
+    fi
+  }
+
+  mode() {
+    DEV_MODE="$@"
+  }
+
+  cmd() {
+    DEV_CMD="$@"
+  }
+
+  "$@"
+  return $?
+}
+
+exec_command() {
+  # Check if command exists
+  DEV_COMMAND=$1
+  if [ -z "${DEV_COMMAND}" ]; then
+    DEV_COMMAND=usage
+  fi
+  shift
+
+  if [ ! -r "${DEV_COMMANDPATH}/${DEV_COMMAND}" ]; then
+    echo "Command ${DEV_COMMAND} not found"
+    return 1
+  fi
+
+  # Change to command directory
+  # This is so all docker-compose commands work out of the box
+
+  # execute command
+  . ${DEV_COMMANDPATH}/${DEV_COMMAND} "$@"
+  return $?
+}
+
+usage() {
+  exec_command usage
+  return $?
+}
+
+main() {
+  [ $# -lt 1 ] && (
+    usage
+    return $?
+  )
+  if [ ! -f "${PROJECT_PATH}/.env" ] && [ "$1" != 'setup' ]; then
+    echo "Project not configured yet. Please run '$(basename $0) setup' before continue."
+    exit 1
+  fi
+  exec_command "$@"
+  return $?
+}
+
+init
+
+main "$@"
+exit $?

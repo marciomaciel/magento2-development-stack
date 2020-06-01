@@ -1,0 +1,7 @@
+
+dc service redis;
+
+dc mode exec;
+dc cmd "redis-cli"
+dc run "$@";
+return $?;

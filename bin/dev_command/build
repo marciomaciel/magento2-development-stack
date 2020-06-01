@@ -1,0 +1,24 @@
+services=$(. ${DEV_COMMANDPATH}/config --services);
+if [ -n "$*" ]; then
+    services="$@";
+fi
+
+user_id=`id -u`;
+group_id=`id -g`;
+
+args='';
+if [ -n "${user_id}" ]; then
+    args=${args}' --build-arg=UID='${user_id};
+fi
+if [ -n "${group_id}" ]; then
+    args=${args}' --build-arg=GID='${group_id};
+fi
+
+dc mode build;
+dc cmd "${args}";
+
+for a in ${services}; do
+    dc run "${a}";
+done
+return 0;
+

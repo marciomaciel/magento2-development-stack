@@ -1,0 +1,11 @@
+
+dc service db;
+
+dc nodeps;
+dc interactive;
+
+MYSQL_ROOT_PASSWORD=$(grep MYSQL_ROOT_PASSWORD ${PROJECT_PATH}/.env | cut -d '=' -f2)
+
+dc cmd mysql "-hdb -uroot -p${MYSQL_ROOT_PASSWORD}";
+dc run "$@";
+return $?;

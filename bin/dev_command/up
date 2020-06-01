@@ -1,0 +1,5 @@
+dc opt '-d --no-recreate';
+dc mode 'up';
+dc run "$@";
+return $?;
+

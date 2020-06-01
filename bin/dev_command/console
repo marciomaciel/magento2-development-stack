@@ -1,0 +1,14 @@
+
+dc service php;
+
+dc interactive;
+dc projectpath;
+dc user;
+
+if [ $# -lt 1 ]; then
+    dc cmd bash -l;
+fi
+
+dc run "$@";
+return $?;
+

@@ -1,0 +1,4 @@
+
+. ${DEV_COMMANDPATH}/console composer "$@";
+return $?;
+

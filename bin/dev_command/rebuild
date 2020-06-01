@@ -1,0 +1,8 @@
+${DEV_SELF} update && \
+    ${DEV_SELF} build && \
+    ${DEV_SELF} down && \
+    ${DEV_SELF} up && \
+    ${DEV_SELF} ps && \
+    return 0 || \
+    return 1;
+

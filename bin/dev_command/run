@@ -1,0 +1,10 @@
+
+dc service $1;
+shift;
+
+dc interactive;
+dc projectpath;
+
+dc run "$@";
+return $?;
+

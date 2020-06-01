@@ -1,0 +1,9 @@
+
+dc mode exec;
+dc interactive;
+
+dc service $1;
+shift;
+
+dc run "$@";
+

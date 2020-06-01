@@ -1,0 +1,11 @@
+
+dc service cron;
+
+dc projectpath;
+dc user;
+dc mode exec;
+
+dc cmd bin/magento cron:install
+
+dc run "$@";
+return $?;

@@ -1,0 +1,12 @@
+
+dc service php;
+
+dc interactive;
+dc nodeps;
+dc projectpath;
+dc user;
+
+dc cmd git;
+dc run "$@";
+return $?;
+

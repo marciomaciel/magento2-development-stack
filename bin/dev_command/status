@@ -1,0 +1,3 @@
+# Just an alias
+. ${DEV_COMMANDPATH}/ps
+

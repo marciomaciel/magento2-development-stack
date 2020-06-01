@@ -1,0 +1,6 @@
+
+dc mode stop;
+
+dc run "$@";
+return $?;
+
